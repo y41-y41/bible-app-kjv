@@ -2,7 +2,12 @@
 
 This contains everything you need to run your app locally.
 
-## Run Locally
+#RUN MOBILE 
+
+1.add to home
+
+
+## Run pc
 
 **Prerequisites:**  Node.js
 
