@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Book, FavoriteVerseRef, BibleVerse, ChapterData, HighlightColorName, VerseHighlight } from '../types';
+import { Book, FavoriteVerseRef, BibleVerse, ChapterData, HighlightColorName, VerseHighlight } from '../src/types';
 import { getChapter } from '../services/bibleService';
 
 interface ScriptureDisplayProps {

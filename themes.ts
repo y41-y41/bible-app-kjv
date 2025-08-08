@@ -1,4 +1,4 @@
-import { ColorThemeName } from "./types";
+import { ColorThemeName } from "./src/types";
 
 type ThemeDefinition = {
   name: string;

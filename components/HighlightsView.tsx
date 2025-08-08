@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ResolvedHighlight, FavoriteVerseRef } from '../types';
+import { ResolvedHighlight, FavoriteVerseRef } from '../src/types';
 
 interface HighlightsViewProps {
     highlights: ResolvedHighlight[];

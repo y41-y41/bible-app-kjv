@@ -1,5 +1,4 @@
-
-import { ChapterData, SearchResult, Book, FavoriteVerseRef, ResolvedFavorite, BibleVerse, Translation, SearchParams, VerseHighlight, ResolvedHighlight } from '../types';
+import { ChapterData, SearchResult, Book, FavoriteVerseRef, ResolvedFavorite, BibleVerse, Translation, SearchParams, VerseHighlight, ResolvedHighlight } from '../src/types';
 
 // A simple in-memory cache for fetched BOOK data
 const bookCache: Record<string, any> = {};
@@ -23,7 +22,7 @@ const getBookData = async (bookName: string): Promise<any | null> => {
             return null;
         }
         const bookData = await response.json();
-        if (Object.keys(bookData.chapters).length > 0) {
+        if (bookData.chapters && bookData.chapters.length > 0) {
             bookCache[bookName] = bookData;
         }
         return bookData;
@@ -36,29 +35,36 @@ const getBookData = async (bookName: string): Promise<any | null> => {
 export const getChapter = async (bookName: string, chapter: number): Promise<ChapterData | null> => {
     try {
         const bookData = await getBookData(bookName);
-        if (!bookData || !bookData.chapters || !bookData.chapters[chapter]) {
-             console.warn(`No chapter data found for ${bookName} ${chapter}. The book file might be empty or missing the chapter.`);
+        if (!bookData || !bookData.chapters || !Array.isArray(bookData.chapters)) {
+             console.warn(`No chapter data found for ${bookName}. The book file might be empty or missing.`);
              return null;
         }
 
-        const verseData: Record<string, string> = bookData.chapters[chapter];
-        const verses: BibleVerse[] = Object.entries(verseData).map(([verseNum, text]) => ({
+        // Find the specific chapter
+        const chapterData = bookData.chapters.find((ch: any) => parseInt(ch.chapter) === chapter);
+        if (!chapterData || !chapterData.verses) {
+            console.warn(`No chapter ${chapter} found for ${bookName}.`);
+            return null;
+        }
+
+        // Convert the verses array to BibleVerse format
+        const verses: BibleVerse[] = chapterData.verses.map((verse: any) => ({
             book_name: bookName,
             chapter: chapter,
-            verse: parseInt(verseNum, 10),
-            text: text,
+            verse: parseInt(verse.verse, 10),
+            text: verse.text,
         }));
 
         if (verses.length === 0) {
              console.warn(`No verses found for ${bookName} ${chapter}. The file might be empty or invalid.`);
         }
 
-        const chapterData: ChapterData = {
+        const chapterResult: ChapterData = {
             reference: `${bookName} ${chapter}`,
             verses: verses
         };
         
-        return chapterData;
+        return chapterResult;
     } catch (error) {
         console.error(`Failed to get chapter data for ${bookName} ${chapter}:`, error);
         return null;
@@ -91,23 +97,24 @@ export const search = async (params: SearchParams, bibleBooks: Book[]): Promise<
     
     for (const book of booksToSearch) {
         const bookData = await getBookData(book.name);
-        if (!bookData || !bookData.chapters) continue;
+        if (!bookData || !bookData.chapters || !Array.isArray(bookData.chapters)) continue;
 
-        const chaptersToScan = chapterToSearch ? [String(chapterToSearch)] : Object.keys(bookData.chapters);
+        // Filter chapters based on search criteria
+        const chaptersToScan = chapterToSearch 
+            ? bookData.chapters.filter((ch: any) => parseInt(ch.chapter) === chapterToSearch)
+            : bookData.chapters;
         
-        for (const chapNum of chaptersToScan) {
-            const chapterData = bookData.chapters[chapNum];
-            if (!chapterData) continue;
+        for (const chapterData of chaptersToScan) {
+            if (!chapterData.verses || !Array.isArray(chapterData.verses)) continue;
 
-            for (const verseNum in chapterData) {
-                 const verseText = chapterData[verseNum];
-                 if (verseText.toLowerCase().includes(queryLower)) {
+            for (const verse of chapterData.verses) {
+                 if (verse.text && verse.text.toLowerCase().includes(queryLower)) {
                      results.push({
-                        reference: `${book.name} ${chapNum}:${verseNum}`,
+                        reference: `${book.name} ${chapterData.chapter}:${verse.verse}`,
                         book: book,
-                        chapter: parseInt(chapNum, 10),
-                        verse: parseInt(verseNum, 10),
-                        text: verseText.replace(queryRegex, `<strong class="bg-[var(--color-accent-bg)] text-[var(--color-accent)] font-bold">$1</strong>`),
+                        chapter: parseInt(chapterData.chapter, 10),
+                        verse: parseInt(verse.verse, 10),
+                        text: verse.text.replace(queryRegex, `<strong class="bg-[var(--color-accent-bg)] text-[var(--color-accent)] font-bold">$1</strong>`),
                      });
                  }
             }
@@ -116,7 +123,6 @@ export const search = async (params: SearchParams, bibleBooks: Book[]): Promise<
 
     return results;
 };
-
 
 export const resolveFavorites = async (refs: FavoriteVerseRef[]): Promise<ResolvedFavorite[]> => {
     const resolvedFavorites: ResolvedFavorite[] = [];
@@ -138,20 +144,26 @@ export const resolveFavorites = async (refs: FavoriteVerseRef[]): Promise<Resolv
 
     for (const bookName in refsByBook) {
         const bookData = await getBookData(bookName);
-        if (!bookData || !bookData.chapters) continue;
+        if (!bookData || !bookData.chapters || !Array.isArray(bookData.chapters)) continue;
 
         for (const ref of refsByBook[bookName]) {
             const [_translation, _bookName, chapterNumStr, verseNumStr] = ref.split(':');
-            const chapter = bookData.chapters[chapterNumStr];
-            if(chapter) {
-                const verseText = chapter[verseNumStr];
-                if (verseText) {
+            const chapterNum = parseInt(chapterNumStr, 10);
+            const verseNum = parseInt(verseNumStr, 10);
+            
+            // Find the chapter
+            const chapterData = bookData.chapters.find((ch: any) => parseInt(ch.chapter) === chapterNum);
+            if (chapterData && chapterData.verses) {
+                // Find the verse
+                const verse = chapterData.verses.find((v: any) => parseInt(v.verse) === verseNum);
+                if (verse && verse.text) {
                     resolvedFavorites.push({
                         ref,
                         bookName,
-                        chapter: parseInt(chapterNumStr, 10),
+                        chapter: chapterNum,
+                        verse: verseNum,
                         reference: `${bookName} ${chapterNumStr}:${verseNumStr}`,
-                        text: verseText
+                        text: verse.text
                     });
                 }
             }
@@ -182,20 +194,26 @@ export const resolveHighlights = async (highlights: VerseHighlight[]): Promise<R
 
     for (const bookName in refsByBook) {
         const bookData = await getBookData(bookName);
-        if (!bookData || !bookData.chapters) continue;
+        if (!bookData || !bookData.chapters || !Array.isArray(bookData.chapters)) continue;
 
         for (const highlight of refsByBook[bookName]) {
             const [, , chapterNumStr, verseNumStr] = highlight.ref.split(':');
-            const chapter = bookData.chapters[chapterNumStr];
-            if (chapter) {
-                const verseText = chapter[verseNumStr];
-                if (verseText) {
+            const chapterNum = parseInt(chapterNumStr, 10);
+            const verseNum = parseInt(verseNumStr, 10);
+            
+            // Find the chapter
+            const chapterData = bookData.chapters.find((ch: any) => parseInt(ch.chapter) === chapterNum);
+            if (chapterData && chapterData.verses) {
+                // Find the verse
+                const verse = chapterData.verses.find((v: any) => parseInt(v.verse) === verseNum);
+                if (verse && verse.text) {
                     resolvedHighlights.push({
                         ...highlight,
                         bookName,
-                        chapter: parseInt(chapterNumStr, 10),
+                        chapter: chapterNum,
+                        verse: verseNum,
                         reference: `${bookName} ${chapterNumStr}:${verseNumStr}`,
-                        text: verseText
+                        text: verse.text
                     });
                 }
             }

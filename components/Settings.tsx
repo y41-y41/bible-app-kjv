@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ColorThemeName, BackgroundMode, FontFamily } from '../types';
+import { ColorThemeName, BackgroundMode, FontFamily } from '../src/types';
 import { themes } from '../themes';
 
 interface SettingsProps {

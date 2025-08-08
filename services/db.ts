@@ -1,4 +1,4 @@
-import { FavoriteVerseRef, ReadingHistoryEntry, VerseHighlight } from '../types';
+import { FavoriteVerseRef, ReadingHistoryEntry, VerseHighlight } from '../src/types';
 
 const DB_NAME = 'BibleAppDB';
 const SCRIPTURE_STORE_NAME = 'scriptures';

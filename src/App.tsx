@@ -1,15 +1,15 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
-import { Header } from './components/Header';
-import { ScriptureDisplay } from './components/ScriptureDisplay';
-import { Settings } from './components/Settings';
+import { Header } from '../components/Header';
+import { ScriptureDisplay } from '../components/ScriptureDisplay';
+import { Settings } from '../components/Settings';
 import { Book, BackgroundMode, ColorThemeName, View, FontFamily, SearchResult, FavoriteVerseRef, ReadingHistoryEntry, BibleVerse, ResolvedFavorite, ChapterData, Translation, SearchParams, VerseHighlight, ResolvedHighlight, HighlightColorName } from './types';
-import { Footer } from './components/Footer';
-import { themes } from './themes';
-import * as db from './services/db';
-import * as bibleService from './services/bibleService';
-import { FavoritesView } from './components/FavoritesView';
-import { HighlightsView } from './components/HighlightsView';
+import { Footer } from '../components/Footer';
+import { themes } from '../themes';
+import * as db from '../services/db';
+import * as bibleService from '../services/bibleService';
+import { FavoritesView } from '../components/FavoritesView';
+import { HighlightsView } from '../components/HighlightsView';
+
 
 const KJV_TRANSLATION: Translation = 'kjv';
 

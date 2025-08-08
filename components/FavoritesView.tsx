@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ResolvedFavorite, FavoriteVerseRef } from '../types';
+import { ResolvedFavorite, FavoriteVerseRef } from '../src/types';
 
 interface FavoritesViewProps {
     favorites: ResolvedFavorite[];
