@@ -1,4 +1,4 @@
-import { ChapterData, SearchResult, Book, FavoriteVerseRef, ResolvedFavorite, BibleVerse, Translation, SearchParams, VerseHighlight, ResolvedHighlight } from '../src/types';
+import { ChapterData, SearchResult, Book, FavoriteVerseRef, ResolvedFavorite, BibleVerse, SearchParams, VerseHighlight, ResolvedHighlight } from '../src/types';
 
 // A simple in-memory cache for fetched BOOK data
 const bookCache: Record<string, any> = {};
