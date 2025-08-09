@@ -73,7 +73,8 @@ export interface ResolvedFavorite {
     ref: FavoriteVerseRef;
     bookName: string;
     chapter: number;
-    reference: string; // Human-readable e.g., "Genesis 1:1"
+    verse: number;
+    reference: string; 
     text: string;
 }
 
