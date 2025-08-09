@@ -2,14 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- 🔁 Updated favicon path -->
-    <link rel="icon" type="image/png" href="/bible-app-kjv/icons/icon-192.png" />
+    <!-- Fixed favicon path for local development -->
+    <link rel="icon" type="image/png" href="/icons/icon-192.png" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Digital Bible Reader</title>
 
-    <!-- 🔁 Updated manifest path -->
-    <link rel="manifest" href="/bible-app-kjv/manifest.json" />
+    <!-- Fixed manifest path for local development -->
+    <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#1f2937" />
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,18 +26,18 @@
     }
     </script>
 
-    <!-- 🔁 Updated stylesheet path -->
-    <link rel="stylesheet" href="/bible-app-kjv/index.css">
+    <!-- Fixed stylesheet path for local development -->
+    <link rel="stylesheet" href="/index.css">
   </head>
 
   <body class="transition-colors duration-300">
     <div id="root"></div>
 
-    <!-- 🔁 Updated Service Worker registration path -->
+    <!-- Fixed Service Worker registration path for local development -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/bible-app-kjv/sw.js')
+          navigator.serviceWorker.register('/sw.js')
             .then(registration => {
               console.log('Service Worker registered with scope:', registration.scope);
             })
@@ -48,7 +48,7 @@
       }
     </script>
 
-    <!-- 🔁 Updated main script path -->
-    <script type="module" src="/bible-app-kjv/index.tsx"></script>
+    <!-- Fixed main script path - this was the main issue -->
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
